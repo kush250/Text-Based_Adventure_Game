@@ -133,7 +133,7 @@ def next_room_go(dir, room_name):
     if data_of_room is not None:
         if dir in data_of_room.get('exits'):
             present_room = data_of_room.get('exits').get(dir)
-            print(f'You go {dir}.')
+            print(f'You go {dir}.\n')
             look_present_room()
         else:
             print(f"There's no way to go {dir}.")
