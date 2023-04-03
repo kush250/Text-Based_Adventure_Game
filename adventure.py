@@ -73,13 +73,15 @@ def get_data_of_room(room):
 
 def look(room):
     room_data = get_data_of_room(room)
+    if room_data is None:
+        return 
     room_name = room_data.get('name')
     dsc = room_data.get('desc')
     str = " ".join(room_data['exits'].keys())
     print(f'> {room_name}\n')
     print(f'{dsc}\n')
     if room_data.get('items') is not None and len(room_data.get('items')) != 0:
-        itm_str = " ".join(room_data['items'])
+        itm_str = ", ".join(room_data['items'])
         print('Items: ' + itm_str + '\n')
     print('Exits: ' + str + '\n')
 
