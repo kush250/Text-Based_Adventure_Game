@@ -72,7 +72,7 @@ def get_data_of_room(room):
 
 
 def look(room):
-    room_data = get_room_data(room)
+    room_data = get_data_of_room(room)
     room_name = room_data.get('name')
     dsc = room_data.get('desc')
     str = " ".join(room_data['exits'].keys())
