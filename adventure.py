@@ -44,7 +44,7 @@ def room_items():
     for room in game_map:
         if room.get('items') is None:
             continue
-        else:    
+        else:
             for item in room.get('items'):
                 if item in items:
                     continue
@@ -74,7 +74,7 @@ def get_data_of_room(room):
 def look(room):
     room_data = get_data_of_room(room)
     if room_data is None:
-        return 
+        return
     room_name = room_data.get('name')
     dsc = room_data.get('desc')
     str = " ".join(room_data['exits'].keys())
@@ -148,7 +148,7 @@ def next_room_go_utils(args):
     if len(args) != 2:
         print(f'Sorry, you need to \'go\' somewhere.')
         return
-    room_data = get_data_of_room(current_room)
+    room_data = get_data_of_room(present_room)
     if room_data is None:
         return
     else:
@@ -158,23 +158,23 @@ def next_room_go_utils(args):
             return
         else:
             if len(matched_directions) > 1:
-                current_items = join_list(matched_directions, " or ")
+                current_items = list_join(matched_directions, " or ")
                 print(f'Did you want to get the {current_items} ?')
                 return
-            next_room_go(matched_directions[0], current_room)
+            next_room_go(matched_directions[0], present_room)
 
 
 def item_get_utils(args):
     if len(args) != 2:
         print('Sorry, you need to \'get\' something.')
         return
-    room_data = get_data_of_room(current_room)
+    room_data = get_data_of_room(present_room)
     if room_data is None:
         return
-    else:        
+    else:
         curr_items = room_data.get('items')
         try:
-            curr_items = list(filter(lambda i: i not in current_inventory, room_data.get('items')))
+            curr_items = list(filter(lambda i: i not in present_inventory, room_data.get('items')))
         except:
             pass
         matched_items = input_match(args[1], curr_items)
@@ -183,30 +183,30 @@ def item_get_utils(args):
             return
         else:
             if len(matched_items) > 1:
-                current_items = join_list(matched_items, " or the ")
+                current_items = list_join(matched_items, " or the ")
                 print(f'Did you want to get the {current_items} ?')
                 return
-            get_item(matched_items[0], current_room)
+            get_item_from_room(matched_items[0], present_room)
 
 
 def item_drop_utils(args):
     if len(args) != 2:
         print('Sorry, you need to \'drop\' something.')
         return
-    room_data = get_data_of_room(current_room)
+    room_data = get_data_of_room(present_room)
     if room_data is None:
         return
     else:
-        matched_items = input_match(args[1], current_inventory)
+        matched_items = input_match(args[1], present_inventory)
         if len(matched_items) == 0:
             print(f'There\'s no {args[1]} in inventory.')
             return
         else:
             if len(matched_items) > 1:
-                current_items = join_list(matched_items, " or the ")
+                current_items = list_join(matched_items, " or the ")
                 print(f'Did you want to drop the {current_items} ?')
                 return
-            drop_item(matched_items[0], current_room)
+            drop_item_in_room(matched_items[0], present_room)
 
 
 
@@ -273,7 +273,7 @@ def input_match(string_input, options_valid):
                 verb_matches.append(verbe)
     return verb_matches
 
-def list_join(liste, iden): 
+def list_join(liste, iden):
     strr=", ".join(liste[:-1]).rstrip()
     return strr + iden + liste[-1]
 
@@ -291,7 +291,7 @@ def game_start():
 
         arguments_act = intput.strip().lower().split()
         lengt=len(arguments_act)
-        if lengt == 0: 
+        if lengt == 0:
             continue
         verbs_matched = verb_match(arguments_act[0])
         leng=len(verbs_matched)
