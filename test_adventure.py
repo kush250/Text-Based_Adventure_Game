@@ -1,197 +1,214 @@
 import sys
 import json
 
-# Load the game maps
-file_access_mode = 'r'
-maps = {}
+game_map = {}
 
-if len(sys.argv) < 2:
-    raise Exception('Game init input: python3 adventure.py (map_json_file_name.txt)')
+#check if mapper file is passed as argument with the python file or raise exception
+arg_length=len(sys.argv)
+if arg_length < 2:
+    raise Exception('Game input type: python3 adventure.py (mapper_file.txt)')
 
-
-def load_file(argv):
-    global maps
+#function that defines how to read the mapper file into game_map
+def load(argv):
+    global game_map
     try:
-        with open(argv[1], file_access_mode) as maps_file:
-            maps = json.load(maps_file)
+        with open(argv[1], 'r') as file:
+            game_map = json.load(file)
     except Exception as e:
         print(f'ERROR: {e.with_traceback()}')
         sys.exit()
 
+# load game map, our only game asset
+load(sys.argv)
+# print('Loaded map: ', game_map)
 
-load_file(sys.argv)
-# print('Loaded map: ', maps)
-
-# Start the game in the first room
-current_room = 0
-current_inventory = []
-directions = []
+# Defining first room as current
+present_room = 0
+present_inventory = []
 items = []
+directions = []
 
 
-def get_predefined_directions():
+def go_directions():
     global directions
-    for room in maps:
-        if room.get('exits') is not None:
+    for room in game_map:
+        if room.get('exits') is None:
+            continue
+        else:
             for dir in room.get('exits').keys():
-                if dir not in directions:
+                if dir in directions:
+                    continue
+                else:
                     directions.append(dir)
 
 
-def get_predefined_items():
+def room_items():
     global items
-    for room in maps:
-        if room.get('items') is not None:
+    for room in game_map:
+        if room.get('items') is None:
+            continue
+        else:    
             for item in room.get('items'):
-                if item not in items:
+                if item in items:
+                    continue
+                else:
                     items.append(item)
 
 
-def look_room(room):
-    room_data = get_room_data(room)
-    if room_data is None:
-        return
-    room_name = room_data.get('name')
-    print(f'> {room_name} \n')
-    print(room_data['desc'], '\n')
-    if room_data.get('items') is not None:
-        print('Items:', " ".join(room_data['items']))
-    print('Exits:', " ".join(room_data['exits'].keys()), '\n')
-
-
-def look_current_room():
-    look_room(current_room)
+def show_inventory():
+    print('Inventory:')
+    for item in present_inventory:
+        print(f'  {item}')
 
 
 def get_room_data(room):
-    if len(maps) > room >= 0:
-        room_data = maps[room]
-        return room_data
+    leng=len(game_map)
+    if leng > room >= 0:
+        return game_map[room]
     else:
         print(f'The room with index {room} does not exists in map., \n')
         return None
 
 
+def look(room):
+    data_of_room = get_room_data(room)
+    if data_of_room is None:
+        return
+    else:
+        name_of_room = data_of_room.get('name')
+        print(f'> {name_of_room} \n')
+        print(data_of_room['desc'], '\n')
+        if data_of_room.get('items') is None:
+            print('Exits:', " ".join(data_of_room['exits'].keys()), '\n')
+        else:
+            print('Items:', " ".join(data_of_room['items']))
+            print('Exits:', " ".join(data_of_room['exits'].keys()), '\n')
+
+
+def look_present_room():
+    look(present_room)
+
+
 def help():
-    print('---------- Available commands in the game ---------')
-    for verb in verbs:
-        print(verb, ' : ', verbs.get(verb).get('desc'))
-    print('--------------------------------------------------- ')
+    print('You can run the following commands:')
+    for verb in verb_list:
+        print(verb, ' : ', verb_list.get(verb).get('desc'))
 
 
-def get_item(item, room):
-    global current_inventory
-    room_data = get_room_data(room)
-    if room_data is None:
-        return
-    if item in room_data.get('items'):
-        current_inventory.append(item)
-        maps[room]['items'].remove(item)
-        print(f"You pick up the {item}.")
+def get_item_from_room(item_name, room_name):
+    global present_inventory
+    data_of_room = get_room_data(room_name)
+    if data_of_room is not None:
+        if item_name in data_of_room.get('items'):
+            present_inventory.append(item_name)
+            game_map[room_name]['items'].remove(item_name)
+            print(f"You pick up the {item_name}.")
+        else:
+            print(f"There's no {item_name} anywhere.")
     else:
-        print(f"There is no {item} anything.")
-
-
-def drop_item(item, room):
-    global current_inventory
-    room_data = get_room_data(room)
-    if room_data is None:
         return
-    if item in current_inventory:
-        current_inventory.remove(item)
-        maps[room].setdefault('items', []).append(item)
-        print(f"You drop the {item}.")
+
+
+def drop_item_in_room(item_name, room_name):
+    global present_inventory
+    data_of_room = get_room_data(room_name)
+    if data_of_room is not None:
+        if item_name in present_inventory:
+            present_inventory.remove(item_name)
+            game_map[room_name].setdefault('items', []).append(item_name)
+            print(f"You drop the {item_name}.")
+        else:
+            print(f"You are not carrying the item {item_name} in your inventory.")
     else:
-        print(f"You aren't carrying a {item}.")
-
-
-def show_inventory():
-    print('Inventory:')
-    for inv in current_inventory:
-        print(f'  {inv}')
-
-
-def go_to_next_room(direction, room):
-    global current_room
-    room_data = get_room_data(room)
-    if room_data is None:
         return
-    if direction in room_data.get('exits'):
-        current_room = room_data.get('exits').get(direction)
-        print(f'You go {direction}.')
-        look_room(current_room)
-    else:
-        print(f"There's no way to go {direction}.")
 
 
-def quit_game():
+def game_quit_now():
     print('Goodbye!')
     sys.exit()
 
 
-verbs = {
+def go_to_next_room(dir, room_name):
+    global present_room
+    data_of_room = get_room_data(room_name)
+    if data_of_room is not None:
+        if dir in data_of_room.get('exits'):
+            present_room = data_of_room.get('exits').get(dir)
+            print(f'You go {dir}.')
+            look_present_room()
+        else:
+            print(f"There's no way to go {dir}.")
+    else:
+        return
+
+
+
+
+
+verb_list = {
     'go': {
         'alias': [],
         'func': go_to_next_room,
-        'desc': 'go <direction>. take it to <direction> room from the current room.'
+        'desc': 'go <direction>. tries to go in the specified direction <direction> room from current room.'
     },
     'help': {
         'alias': [],
         'func': help,
-        'desc': 'print available command in the game'
+        'desc': 'keeps track of what the verbs in the game are and prints them'
     },
     'look': {
         'alias': [],
-        'func': look_current_room,
-        'desc': 'print the view of the current room'
+        'func': look_present_room,
+        'desc': 'show which room the person is in right now'
     },
     'get': {
         'alias': [],
-        'func': get_item,
-        'desc': 'get <item>. collect the item <item> from the current room if it\'s available'
+        'func': get_item_from_room,
+        'desc': 'get <item>. lets a player pick the item <item> that are in the room'
     },
     'inventory': {
         'alias': [],
         'func': show_inventory,
-        'desc': 'print out the collected inventories'
+        'desc': 'shows the player what they are carrying'
     },
     'quit': {
         'alias': [],
-        'func': quit_game,
-        'desc': 'terminate the game. Even, CTRL+C can be used to terminate the game'
+        'func': game_quit_now,
+        'desc': 'should exit the game. Also, sending an interrupt should end the game immediately'
     },
     'drop': {
         'alias': [],
-        'func': drop_item,
-        'desc': 'drop <item>. drop the item <item> from the current collected inventory'
+        'func': drop_item_in_room,
+        'desc': 'take the item <item> from your inventory and put it down in the room'
     }
 }
 
 
-def match_verbs(input_str):
-    matches = []
-    for option in verbs:
-        if option == input_str:
-            return [option]
-        if option.startswith(input_str):
-            matches.append(option)
-    return matches
+def verb_match(string_input):
+    verb_matches = []
+    for verbe in verb_list:
+        if verbe == string_input:
+            return [verbe]
+        else:
+            if verbe.startswith(string_input):
+                verb_matches.append(verbe)
+    return verb_matches
 
 
-def match_input(input_str, valid_options):
-    matches = []
-    for option in valid_options:
-        if option == input_str:
-            return [option]
-        if input_str in option:
-            matches.append(option)
-    return matches
+def match_input(string_input, options_valid):
+    verb_matches = []
+    for verbe in options_valid:
+        if verbe == string_input:
+            return [verbe]
+        else:
+            if string_input in verbe:
+                verb_matches.append(verbe)
+    return verb_matches
 
 
-def start_game():
-    global current_room
-
-    look_room(current_room)
+def game_start():
+    global present_room
+    look_present_room()
     while True:
         try:
             command = input("What would you like to do? ")
@@ -204,72 +221,75 @@ def start_game():
             continue
 
         action_args = command.strip().lower().split()
-        matched_verbs = match_verbs(action_args[0])
-        if len(matched_verbs) == 0:
+        verbs_matched = verb_match(action_args[0])
+        lengt=len(verbs_matched)
+        if lengt == 0:
             print(
-                f"Unidentified cmd_input input: {command}. Please enter \'help\' to know more about inbuilt "
-                f"commands.")
+                f"The command {command} could not be identified. See \'help\' to know more about set of valid "
+                f"commands ")
             continue
-        elif len(matched_verbs) == 1:
-            current_verb = matched_verbs[0]
-            if current_verb == "go":
+        elif lengt == 1:
+            this_verb = verbs_matched[0]
+            if this_verb == "go":
                 if len(action_args) != 2:
                     print(f'Sorry, you need to \'go\' somewhere.')
                     continue
-                matched_directions = match_input(action_args[1], directions)
-                if len(matched_directions) == 0:
+                direction = match_input(action_args[1], directions)
+                if len(direction) == 0:
                     print(f'There\'s no way to go {action_args[1]}.')
                     continue
-                if len(matched_directions) > 1:
-                    current_items = " or ".join(matched_directions).rstrip()
-                    print(f'Did you want to get the {current_items} ?')
-                    continue
-                go_to_next_room(matched_directions[0], current_room)
-            elif current_verb == "look":
-                look_room(current_room)
-            elif current_verb == "inventory":
+                else:
+                    if len(direction) > 1:
+                        item = " or ".join(direction).rstrip()
+                        print(f'Did you want to get the {item} ?')
+                        continue
+                go_to_next_room(direction[0], present_room)
+            elif this_verb == "inventory":
                 show_inventory()
-            elif current_verb == "get":
+            elif this_verb == "look":
+                look_present_room()
+            elif this_verb == "help":
+                help()
+            elif this_verb == "quit":
+                game_quit_now()
+            elif this_verb == "get":
                 if len(action_args) != 2:
                     print('Sorry, you need to \'get\' something.')
                     continue
                 matched_items = match_input(action_args[1], items)
-                if len(matched_items) == 0:
+                leng=len(matched_items)
+                if leng == 0:
                     print(f'There\'s no {action_args[1]} anywhere.')
                     continue
-                if len(matched_items) > 1:
-                    current_items = " or ".join(matched_items).rstrip()
-                    print(f'Did you want to get the {current_items} ?')
-                    continue
-                get_item(matched_items[0], current_room)
-            elif current_verb == "drop":
+                else:
+                    if leng > 1:
+                        item = " or ".join(matched_items).rstrip()
+                        print(f'Did you want to get the {item} ?')
+                        continue
+                get_item_from_room(matched_items[0], present_room)
+            elif this_verb == "drop":
                 if len(action_args) != 2:
                     print('Sorry, you need to \'drop\' something.')
                     continue
                 matched_items = match_input(action_args[1], items)
-                if len(matched_items) == 0:
+                leng=len(matched_items)
+                if leng == 0:
                     print(f'There\'s no {action_args[1]} in inventory.')
                     continue
-                if len(matched_items) > 1:
-                    current_items = " or ".join(matched_items).rstrip()
-                    print(f'Did you want to drop the {current_items} ?')
-                    continue
-                drop_item(matched_items[0], current_room)
-            elif current_verb == "quit":
-                quit_game()
-            elif current_verb == "help":
-                help()
+                else:
+                    if leng > 1:
+                        item = " or ".join(matched_items).rstrip()
+                        print(f'Did you want to drop the {item} ?')
+                        continue
+                drop_item_in_room(matched_items[0], present_room)
             else:
-                verbs.get(matched_verbs[0]).get('func')()
+                verb_list.get(this_verb).get('func')()
         else:
-            list_matched = " or ".join(matched_verbs).rstrip()
+            list_matched = " or ".join(verbs_matched).rstrip()
             print(f"Did you want to {list_matched} ?")
             continue
 
 
-get_predefined_directions()
-get_predefined_items()
-# print(verbs.keys())
-# print(directions)
-# print(items)
-start_game()
+go_directions()
+room_items()
+game_start()
