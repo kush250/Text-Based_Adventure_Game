@@ -54,7 +54,7 @@ def room_items():
 
 def show_inventory():
     if len(present_inventory) == 0:
-        print('You\'re not carring anything.')
+        print('You\'re not carrying anything.')
         return
     else:
         print('Inventory:')
@@ -82,7 +82,7 @@ def look(room):
         itm_str = " ".join(room_data['items'])
         print('Items: ' + itm_str + '\n')
     print('Exits: ' + str + '\n')
-    
+
 
 def look_present_room():
     look(present_room)
