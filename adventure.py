@@ -72,19 +72,17 @@ def get_data_of_room(room):
 
 
 def look(room):
-    data_of_room = get_data_of_room(room)
-
-    if data_of_room is None:
-        return
-    else:
-        name_of_room = data_of_room.get('name')
-        print(f'> {name_of_room} \n')
-        print(data_of_room['desc'], '\n')
-        if data_of_room.get('items') is not None:
-            if len(data_of_room.get('items')) != 0:
-                print('Items:', " ".join(data_of_room['items']))
-        print('Exits:', " ".join(data_of_room['exits'].keys()), '\n')
-
+    room_data = get_room_data(room)
+    room_name = room_data.get('name')
+    dsc = room_data.get('desc')
+    str = " ".join(room_data['exits'].keys())
+    print(f'> {room_name}\n')
+    print(f'{dsc}\n')
+    if room_data.get('items') is not None and len(room_data.get('items')) != 0:
+        itm_str = " ".join(room_data['items'])
+        print('Items: ' + itm_str + '\n')
+    print('Exits: ' + str + '\n')
+    
 
 def look_present_room():
     look(present_room)
