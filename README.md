@@ -1,7 +1,6 @@
 # Text-Based Adventure Game                                                          
 
-	Implemented a game engine which would load game maps and let players play a game by updating the state of the game world. 
-	Used Python and extended game versions where players could win/lose depending on items they are carrying and room they are in.
+Implemented a game engine which would load game maps and let players play a game by updating the state of the game world. Used Python and extended game versions where players could win/lose depending on items they are carrying and room they are in.
 
 
 ## A list of the three extensions for the Adventure Game
