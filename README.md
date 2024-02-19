@@ -1,23 +1,10 @@
-Kush Patel kpatel24@stevens.edu
+# Text-Based Adventure Game                                                          
 
-# Github Url to the Adventure Game repository- 	https://github.com/kush250/AdventureGame
-
-# I spent about 33 hours working on this project.
-
-# How I tested my code-
-	-	Initially I would write a function and then test it in local. Then as I wrote more functions, I would see if all the code was working well with other functions. So did sort of continuous integration on my code to test its overall functionality.
-
-  	-	Then I imported the demo test files like loop.map and ambig.map that were given in the document and initially tried testing on them. I made sure that I was considering all the test cases especially the edge ones and making sure the game engine was giving expected output on them. I played around more with the abbreviation extension to see if all prefixes were correctly getting extracted and matched with the verbs of our map. I also tried to make sure the extensions were working thoroughly without compromising the baseline behaviour.
-
-# any bugs or issues you could not resolve-
-	-	So far, as I was testing my code against maps given by professor, there aren't any issues I could not resolve. Only in the help part of the verb, I wasn't able to add the other verbs in the total verb list for the player to know which verbs are part of the game.
+	Implemented a game engine which would load game maps and let players play a game by updating the state of the game world. 
+	Used Python and extended game versions where players could win/lose depending on items they are carrying and room they are in.
 
 
-# an example of a difficult issue or bug and how you resolved- 
-	-	While writing code for abbreviations as verbs extension, I was not able to fetch a particular prefix of the word following the verb when there were multiple items with same prefix. The code was breaking there and when I resolved that, another issue came where if a word was a exact match and a still a prefix like other items in the dictionary, get would not work. For example if there were items like ten, tencent and tener; when I did get ten, it would ask for choices between those three words instead of just getting ten as it was exact match! Then I found a solution for it and got it working.
-
-
-# a list of the three extensions 
+## A list of the three extensions for the Adventure Game
 
 	I implemented the below extensions for the game-
 
@@ -53,4 +40,17 @@ Kush Patel kpatel24@stevens.edu
    	-	Because of help, it is useful to players to know of all the verbs in the game and get aware of what each verb does. We have also added description in all the verbs what they do therefore the players will be easily able to play the game.
 
 
+
+
+## An example of a difficult issue or bug and how you resolved- 
+	-	While writing code for abbreviations as verbs extension, I was not able to fetch a particular prefix of the word following the verb when there were multiple items with same prefix. The code was breaking there and when I resolved that, another issue came where if a word was a exact match and a still a prefix like other items in the dictionary, get would not work. For example if there were items like ten, tencent and tener; when I did get ten, it would ask for choices between those three words instead of just getting ten as it was exact match! Then I found a solution for it and got it working.
+
+
    	
+## How I tested my code-
+	-	Initially I would write a function and then test it in local. Then as I wrote more functions, I would see if all the code was working well with other functions. So did sort of continuous integration on my code to test its overall functionality.
+
+  	-	Then I imported the demo test files like loop.map and ambig.map that were given in the document and initially tried testing on them. I made sure that I was considering all the test cases especially the edge ones and making sure the game engine was giving expected output on them. I played around more with the abbreviation extension to see if all prefixes were correctly getting extracted and matched with the verbs of our map. I also tried to make sure the extensions were working thoroughly without compromising the baseline behaviour.
+
+   
+ (I spent roughly 30 hours working on this project)
